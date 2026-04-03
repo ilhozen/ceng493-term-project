@@ -3,8 +3,11 @@ from sentence_transformers import SentenceTransformer
 import ollama
 import sys
 
+EMBED_MODEL_NAME = "BAAI/bge-m3"
+OLLAMA_MODEL_NAME = "hf.co/ogulcanaydogan/Turkish-LLM-7B-Instruct-GGUF:Q4_K_M"
+
 print("Loading bge-m3 retrieval model...")
-embed_model = SentenceTransformer('BAAI/bge-m3')
+embed_model = SentenceTransformer(EMBED_MODEL_NAME)
 
 client = chromadb.PersistentClient(path="./legal_db")
 
@@ -24,14 +27,27 @@ def ask_legal_question(user_query):
     )
     
     context_list = []
+    source_list = []
     for doc, meta in zip(results['documents'][0], results['metadatas'][0]):
         context_list.append(f"[KAYNAK: {meta['kaynak']}] {doc}")
+        source_list.append(meta['kaynak'])
+
+    unique_sources = list(dict.fromkeys(source_list))
     
     context = "\n\n".join(context_list)
     
-    prompt = f"""Aşağıda verilen hukuk metinlerini temel alarak soruyu cevapla. 
-Cevabını oluştururken mutlaka ilgili kaynağa (Örn: TCK Madde X) atıf yap. 
-Eğer metinde cevap yoksa, bilmediğini belirt ve uydurma.
+    prompt = f"""Aşağıda verilen hukuk metinlerini temel alarak soruyu cevapla.
+Kurallar:
+1) Sadece verilen hukuk metinlerini kullan.
+2) Cevapta mutlaka kaynak atfı yap.
+3) Eğer cevap metinlerde yoksa "Bu bilgi verilen kaynaklarda bulunmuyor." yaz.
+4) Uydurma bilgi verme.
+
+YANIT FORMATI (zorunlu):
+Yanıt: <kısa ve net açıklama>
+Kaynak:
+- <kaynak 1>
+- <kaynak 2>
 
 HUKUKİ METİNLER:
 {context}
@@ -41,14 +57,23 @@ CEVAP:"""
 
     print("Generating answer with turkish-llm-7b...")
     response = ollama.generate(
-        model='hf.co/ogulcanaydogan/Turkish-LLM-7B-Instruct-GGUF:Q4_K_M', 
+        model=OLLAMA_MODEL_NAME,
         prompt=prompt
     )
-    
-    return response['response']
+
+    response_text = response['response'].strip()
+    has_citation = ("kaynak" in response_text.lower()) or any(
+        source in response_text for source in unique_sources
+    )
+
+    if not has_citation and unique_sources:
+        sources_block = "\n".join(f"- {source}" for source in unique_sources)
+        response_text += f"\n\nKullanılan Kaynaklar:\n{sources_block}"
+
+    return response_text
 
 if __name__ == "__main__":
-    test_question = "Hırsızlık suçunun cezası nedir?"
+    test_question = "Ulusal bayram ve genel tatil günlerinde çalışma şartları nasıl belirlenir?"
     
     final_answer = ask_legal_question(test_question)
     
