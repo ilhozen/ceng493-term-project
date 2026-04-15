@@ -3,3 +3,7 @@ chromadb
 sentence-transformers
 torch
 ollama
+scikit-learn
+tqdm
+rank-bm25
+nltk

@@ -1,0 +1,21 @@
+{
+  "total_samples": 300,
+  "retrieval_metrics": {
+    "avg_recall@3": 0.3,
+    "avg_mrr": 0.7077777777777777
+  },
+  "qa_metrics": {
+    "avg_em": 0.0,
+    "avg_f1": 0.09891289783099505,
+    "avg_bleu": 0.09164250274716829,
+    "avg_rouge_l": 0.0882067169321687
+  },
+  "citation_metrics": {
+    "citation_found_rate": 0.9533333333333334,
+    "avg_citation_accuracy": 0.9533333333333334
+  },
+  "hallucination_metrics": {
+    "avg_hallucination_score": 0.32628747146266157,
+    "hallucination_rate": 0.13333333333333333
+  }
+}

@@ -40,24 +40,25 @@ def ask_legal_question(user_query):
     
     prompt = f"""Aşağıda verilen hukuk metinlerini temel alarak soruyu cevapla.
 Kurallar:
-1) Sadece verilen hukuk metinlerini kullan.
-2) Cevapta mutlaka kaynak atfı yap.
+1) Sadece verilen hukuk metinlerini kullan. Asla bilgini ekleme.
+2) Cevapta mutlaka kaynak atfı yap. En az bir Kaynak yazmalısın.
 3) Eğer cevap metinlerde yoksa "Bu bilgi verilen kaynaklarda bulunmuyor." yaz.
-4) Uydurma bilgi verme.
-5) Soruyu yeniden yazma, paraphrase etme veya yeni bir soru üretme.
-6) Cevabı doğrudan ver; "Madde:" gibi başlıklarla yeni soru cümlesi yazma.
+4) Uydurma bilgi verme. Sadece verilen metinleri kullan.
+5) Cevaptan sonra, HER ZAMAN "Kaynak:" kısmını yaz.
+6) Formatı AYNI örnekteki gibi tut:
 
 YANIT FORMATI (zorunlu):
-Yanıt: <kısa ve net açıklama>
+Yanıt: [Senin cevabın burada olacak]
 Kaynak:
-- <kaynak 1>
-- <kaynak 2>
+- [Kanun Adı]
 
 HUKUKİ METİNLER:
 {context}
 
 SORU: {user_query}
-CEVAP:"""
+
+CEVAP:
+Yanıt:"""
 
     print("Generating answer with turkish-llm-7b...")
     response = ollama.generate(

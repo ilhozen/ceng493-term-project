@@ -36,6 +36,12 @@ This creates/updates the local Chroma database in `./legal_db`.
 python query.py
 ```
 
+## 4) Evaluate System
+
+```powershell
+python evaluate.py
+```
+
 ## Notes
 
 - `query.py` expects the `turkish_law` collection to exist, so run `embed.py` first.
